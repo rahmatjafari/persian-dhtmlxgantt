@@ -10,3 +10,5 @@ Working with it is similar to dhtmlxGantt and you need to set these configs to u
 gantt.i18n.setLocale("fa");
 gantt.config.jalali = true;
 ~~~
+
+I hope this helps you.
