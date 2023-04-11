@@ -6815,7 +6815,7 @@ module.exports = function (gantt) {
       return original;
     },
     cache_value: function cache_value(cache, arguments_hash, value) {
-      if (this.is_date(value)) value = new Date(value);
+      if (this.is_date(value)) value = new gantt.PersianDate(value);
       cache[arguments_hash] = value;
     },
     has_cached_value: function has_cached_value(cache, arguments_hash) {
@@ -6825,7 +6825,7 @@ module.exports = function (gantt) {
       var data = cache[arguments_hash]; //for cached dates - return copy
 
       if (this.is_date(data)) {
-        data = new Date(data);
+        data = new gantt.PersianDate(data);
       }
 
       return data;
@@ -7140,7 +7140,7 @@ module.exports = function (gantt) {
         var noCache = !this || !this.cache;
 
         if (method == "GET" && noCache) {
-          url += (url.indexOf("?") >= 0 ? "&" : "?") + "dhxr" + new Date().getTime() + "=1";
+          url += (url.indexOf("?") >= 0 ? "&" : "?") + "dhxr" + new gantt.PersianDate().getTime() + "=1";
         }
 
         t.open(method, url, async);
@@ -7391,6 +7391,7 @@ module.exports = function () {
         wai_aria_attributes: true,
         smart_scales: true,
         rtl: false,
+        jalali: false,
         placeholder_task: false,
         horizontal_scroll_key: "shiftKey",
         drag_timeline: {
@@ -7481,7 +7482,7 @@ module.exports = function (gantt) {
       }
     },
     date_part: function date_part(date) {
-      var old = new Date(date);
+      var old = new gantt.PersianDate(date);
       date.setHours(0);
       this.hour_start(date);
       if (date.getHours() && ( //shift to yesterday on dst
@@ -7561,7 +7562,7 @@ module.exports = function (gantt) {
     },
     add: function add(date, inc, mode) {
       /*jsl:ignore*/
-      var ndate = new Date(date.valueOf());
+      var ndate = new gantt.PersianDate(date.valueOf());
 
       switch (mode) {
         case "day":
@@ -7585,7 +7586,7 @@ module.exports = function (gantt) {
           	adding hours/minutes via setHour(getHour() + inc) gives weird result when
           	adding one hour to the time before switch to a Daylight Saving time
           			example: //Sun Mar 30 2014 01:00:00 GMT+0100 (W. Europe Standard Time)
-          	new Date(2014, 02, 30, 1).setHours(2)
+          	new gantt.PersianDate(2014, 02, 30, 1).setHours(2)
           	>>Sun Mar 30 2014 01:00:00 GMT+0100 (W. Europe Standard Time)
           			setTime seems working as expected
            */
@@ -7611,7 +7612,7 @@ module.exports = function (gantt) {
       return num;
     },
     copy: function copy(date) {
-      return new Date(date.valueOf());
+      return new gantt.PersianDate(date.valueOf());
     },
     date_to_str: function date_to_str(format, utc) {
       var result = fastVersion;
@@ -7644,11 +7645,11 @@ module.exports = function (gantt) {
         }
       }
 
-      var first_thursday = new Date(ndate.valueOf());
+      var first_thursday = new gantt.PersianDate(ndate.valueOf());
       first_thursday.setDate(ndate.getDate() + (4 - nday));
       var year_number = first_thursday.getFullYear(); // year of the first Thursday
 
-      var ordinal_date = Math.round((first_thursday.getTime() - new Date(year_number, 0, 1).getTime()) / 86400000); //ordinal date of the first Thursday - 1 (so not really ordinal date)
+      var ordinal_date = Math.round((first_thursday.getTime() - new gantt.PersianDate(year_number, 0, 1).getTime()) / 86400000); //ordinal date of the first Thursday - 1 (so not really ordinal date)
 
       var week_number = 1 + Math.floor(ordinal_date / 7);
       return week_number;
@@ -7660,7 +7661,7 @@ module.exports = function (gantt) {
       return gantt.date.getISOWeek(ndate);
     },
     convert_to_utc: function convert_to_utc(date) {
-      return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+      return new gantt.PersianDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
     },
     parseDate: function parseDate(date, format) {
       // raw date may be of type string, number (timestamp) or something else
@@ -7779,9 +7780,9 @@ var strToDate = function (format, utc, gantt) {
             }
         }
         if (utc) {
-            return new Date(Date.UTC(set[0], set[1], set[2], set[3], set[4], set[5]));
+            return new gantt.PersianDate(Date.UTC(set[0], set[1], set[2], set[3], set[4], set[5]));
         }
-        return new Date(set[0], set[1], set[2], set[3], set[4], set[5]);
+        return new gantt.PersianDate(set[0], set[1], set[2], set[3], set[4], set[5]);
     };
 };
 var cspVersion = {
@@ -7906,7 +7907,7 @@ var strToDate = function (format, utc, gantt) {
         code = " Date.UTC(" + code + ")";
     }
     // tslint:disable-next-line: function-constructor
-    var strToDateFn = new Function("date", "locale", "var set=[0,0,1,0,0,0]; " + splt + " return new Date(" + code + ");");
+    var strToDateFn = new Function("date", "locale", "var set=[0,0,1,0,0,0]; " + splt + " return new gantt.PersianDate(" + code + ");");
     return function (dateString) {
         return strToDateFn(dateString, gantt.locale);
     };
@@ -8759,7 +8760,7 @@ module.exports = function (gantt) {
     }
 
     gantt.assert(startDate, "Invalid dates");
-    return new Date(startDate);
+    return new gantt.PersianDate(startDate);
   };
 
   gantt._set_default_task_timing = function (task) {
@@ -8984,7 +8985,7 @@ module.exports = function (gantt) {
   function assignProjectDates(task, taskTiming, from, to) {
     if (taskTiming.$no_start) {
       if (from) {
-        task.start_date = new Date(from);
+        task.start_date = new gantt.PersianDate(from);
       } else {
         task.start_date = getDefaultTaskDate(task, this.getParent(task));
       }
@@ -8992,7 +8993,7 @@ module.exports = function (gantt) {
 
     if (taskTiming.$no_end) {
       if (to) {
-        task.end_date = new Date(to);
+        task.end_date = new gantt.PersianDate(to);
       } else {
         task.end_date = this.calculateEndDate({
           start_date: task.start_date,
@@ -9033,8 +9034,8 @@ module.exports = function (gantt) {
       if (child.end_date && !child.$no_end && (!max || max < child.end_date.valueOf())) max = child.end_date.valueOf();
     }, root);
     return {
-      start_date: min ? new Date(min) : null,
-      end_date: max ? new Date(max) : null,
+      start_date: min ? new gantt.PersianDate(min) : null,
+      end_date: max ? new gantt.PersianDate(max) : null,
       rollup: rollup
     };
   }
@@ -9112,11 +9113,11 @@ module.exports = function (gantt) {
         }
       }
 
-      lower = new Date(scale.trace_x[colIndex]);
+      lower = new gantt.PersianDate(scale.trace_x[colIndex]);
       upper = gantt.date.add(lower, steps, unit);
     } else {
       colIndex = Math.floor(gantt.columnIndexByDate(date));
-      upper = gantt.date[unit + "_start"](new Date(scale.min_date));
+      upper = gantt.date[unit + "_start"](new gantt.PersianDate(scale.min_date));
 
       if (scale.trace_x[colIndex]) {
         upper = gantt.date[unit + "_start"](scale.trace_x[colIndex]); // end of time scale
@@ -9151,7 +9152,7 @@ module.exports = function (gantt) {
           task: task
         });
         task.end_date = this.calculateEndDate(task);
-      } else if (!this.isWorkTime(new Date(+task.end_date - 1), undefined, task)) {
+      } else if (!this.isWorkTime(new gantt.PersianDate(+task.end_date - 1), undefined, task)) {
         task.end_date = this.calculateEndDate(task);
       }
     }
@@ -9830,7 +9831,7 @@ var DataProcessor = /** @class */ (function () {
     DataProcessor.prototype.setAutoUpdate = function (interval, user) {
         var _this = this;
         interval = interval || 2000;
-        this._user = user || (new Date()).valueOf();
+        this._user = user || (new gantt.PersianDate()).valueOf();
         this._needUpdate = false;
         this._updateBusy = false;
         this.attachEvent("onAfterUpdate", this.afterAutoUpdate); // arguments sid, action, tid, xml_node;
@@ -10027,7 +10028,7 @@ var DataProcessor = /** @class */ (function () {
             return false;
         }
         if (rowId) {
-            this._in_progress[rowId] = (new Date()).valueOf();
+            this._in_progress[rowId] = (new gantt.PersianDate()).valueOf();
         }
         var ajax = this.$gantt.ajax;
         if (this._tMode === "CUSTOM") {
@@ -10229,7 +10230,7 @@ var DataProcessor = /** @class */ (function () {
             }
             out[id] = row;
             hasOne = true;
-            this._in_progress[id] = (new Date()).valueOf();
+            this._in_progress[id] = (new gantt.PersianDate()).valueOf();
         });
         return hasOne ? out : null;
     };
@@ -13893,8 +13894,8 @@ module.exports = function (gantt) {
     }
 
     if (from && to) {
-      this.config.start_date = this._min_date = new Date(from);
-      this.config.end_date = this._max_date = new Date(to);
+      this.config.start_date = this._min_date = new gantt.PersianDate(from);
+      this.config.end_date = this._max_date = new gantt.PersianDate(to);
     }
 
     this.date.init(); //can be called only once
@@ -14249,9 +14250,9 @@ function resolveConfigRange(unit, gantt) {
   };
 
   if (gantt.config.start_date && gantt.config.end_date) {
-    range.start_date = gantt.date[unit + "_start"](new Date(gantt.config.start_date));
-    var end = new Date(gantt.config.end_date);
-    var start_interval = gantt.date[unit + "_start"](new Date(end));
+    range.start_date = gantt.date[unit + "_start"](new gantt.PersianDate(gantt.config.start_date));
+    var end = new gantt.PersianDate(gantt.config.end_date);
+    var start_interval = gantt.date[unit + "_start"](new gantt.PersianDate(end));
 
     if (+end != +start_interval) {
       end = gantt.date.add(start_interval, 1, unit);
@@ -14308,8 +14309,8 @@ function _init_tasks_range(gantt) {
       var start_date = tasks[0].start_date;
       var end_date = gantt.date.add(start_date, 1, gantt.config.duration_unit);
       range = {
-        start_date: new Date(start_date),
-        end_date: new Date(end_date)
+        start_date: new gantt.PersianDate(start_date),
+        end_date: new gantt.PersianDate(end_date)
       };
     } else {
       range = gantt.getSubtaskDates();
@@ -14317,8 +14318,8 @@ function _init_tasks_range(gantt) {
 
     if (!range.start_date || !range.end_date) {
       range = {
-        start_date: new Date(),
-        end_date: new Date()
+        start_date: new gantt.PersianDate(),
+        end_date: new gantt.PersianDate()
       };
     }
 
@@ -15562,7 +15563,7 @@ module.exports = function (gantt) {
         start_date: task.start_date,
         duration: assignment.delay,
         task: task
-      }) : new Date(task.start_date);
+      }) : new gantt.PersianDate(task.start_date);
       var end;
       var duration;
 
@@ -15574,7 +15575,7 @@ module.exports = function (gantt) {
         });
         duration = assignment.duration;
       } else {
-        end = new Date(task.end_date);
+        end = new gantt.PersianDate(task.end_date);
         duration = task.duration - assignment.delay;
       }
     }
@@ -16856,16 +16857,16 @@ module.exports = function createResourceTimelineBuilder(gantt) {
 
       if (assignmentsPassed) {
         if (item.start_date) {
-          minDate = new Date(Math.max(item.start_date.valueOf(), task.start_date.valueOf()));
+          minDate = new gantt.PersianDate(Math.max(item.start_date.valueOf(), task.start_date.valueOf()));
         }
 
         if (item.end_date) {
-          maxDate = new Date(Math.min(item.end_date.valueOf(), task.end_date.valueOf()));
+          maxDate = new gantt.PersianDate(Math.min(item.end_date.valueOf(), task.end_date.valueOf()));
         }
       }
 
       var firstColumn = helpers.findBinary(scale.trace_x, minDate.valueOf());
-      var currDate = new Date(scale.trace_x[firstColumn] || gantt.date[scaleUnit + "_start"](new Date(minDate)));
+      var currDate = new gantt.PersianDate(scale.trace_x[firstColumn] || gantt.date[scaleUnit + "_start"](new gantt.PersianDate(minDate)));
       var calendar = gantt.config.work_time ? gantt.getTaskCalendar(task) : gantt;
       precalculatedTimes[calendar.id] = {};
 
@@ -16935,7 +16936,7 @@ module.exports = function createResourceTimelineBuilder(gantt) {
     var config = timeline.$getConfig();
 
     for (var i = 0; i < scale.trace_x.length; i++) {
-      start = new Date(scale.trace_x[i]);
+      start = new gantt.PersianDate(scale.trace_x[i]);
       end = gantt.date.add(start, scaleStep, scaleUnit);
       cell = timegrid[start.valueOf()] || {};
       tasks = cell.tasks || [];
@@ -22076,7 +22077,7 @@ var ScrollbarCell = function (_super) {
     //set delay to prevent value drifiting
 
 
-    if (new Date() - (this._wheel_time || 0) < 100) return true; //if (this.$gantt._touch_scroll_active) return;
+    if (new gantt.PersianDate() - (this._wheel_time || 0) < 100) return true; //if (this.$gantt._touch_scroll_active) return;
 
     var left = this.$scroll_hor.scrollLeft;
     this.scrollHorizontally(left);
@@ -22319,7 +22320,7 @@ var ScrollbarCell = function (_super) {
   ScrollbarCell.prototype._mouseWheelHandler = function (e) {
     var target = e.target || e.srcElement;
     if (!this._checkWheelTarget(target)) return;
-    this._wheel_time = new Date();
+    this._wheel_time = new gantt.PersianDate();
     var res = {};
     var wheelSpeed = {
       x: 1,
@@ -22821,7 +22822,7 @@ module.exports = function (gantt) {
       typeSelect._eventsInitialized = true;
     }
 
-    var constraintDate = task[mapping.constraint_date] || new Date();
+    var constraintDate = task[mapping.constraint_date] || new gantt.PersianDate();
 
     gantt.form_blocks._fill_lightbox_select(timeSelects, 0, constraintDate, map, config);
 
@@ -22971,7 +22972,7 @@ module.exports = function (gantt) {
     if (typeof mapping === "string") mapping = {
       start_date: mapping
     };
-    start_date = ev[mapping.start_date] || new Date();
+    start_date = ev[mapping.start_date] || new gantt.PersianDate();
     end_date = ev[mapping.end_date] || gantt.calculateEndDate({
       start_date: start_date,
       duration: 1,
@@ -23035,7 +23036,7 @@ module.exports = function (gantt) {
       minutes = time % 60;
     }
 
-    return new Date(s[map[2]].value, s[map[1]].value, s[map[0]].value, hours, minutes);
+    return new gantt.PersianDate(s[map[2]].value, s[map[1]].value, s[map[0]].value, hours, minutes);
   }
 
   function _getDuration(node, config) {
@@ -23400,7 +23401,7 @@ module.exports = function (gantt) {
 
     if (cfg.auto_end_date) {
       var _update_lightbox_select = function _update_lightbox_select() {
-        start_date = new Date(s[map[2]].value, s[map[1]].value, s[map[0]].value, 0, 0);
+        start_date = new gantt.PersianDate(s[map[2]].value, s[map[1]].value, s[map[0]].value, 0, 0);
         end_date = gantt.calculateEndDate({
           start_date: start_date,
           duration: 1,
@@ -23420,7 +23421,7 @@ module.exports = function (gantt) {
     if (typeof mapping === "string") mapping = {
       start_date: mapping
     };
-    var start_date = ev[mapping.start_date] || new Date();
+    var start_date = ev[mapping.start_date] || new gantt.PersianDate();
     var end_date = ev[mapping.end_date] || gantt.calculateEndDate({
       start_date: start_date,
       duration: 1,
@@ -24223,7 +24224,7 @@ module.exports = function (gantt) {
       var settings = {
         first: 0,
         last: 24 * 60,
-        date: this.date.date_part(new Date(gantt._min_date.valueOf())),
+        date: this.date.date_part(new gantt.PersianDate(gantt._min_date.valueOf())),
         timeFormat: getTimeFormat(sns)
       }; // map: default order => real one
 
@@ -24269,7 +24270,7 @@ module.exports = function (gantt) {
         minutes = time % 60;
       }
 
-      return new Date(selects[map[2] + mapOffset].value, selects[map[1] + mapOffset].value, selects[map[0] + mapOffset].value, hours, minutes);
+      return new gantt.PersianDate(selects[map[2] + mapOffset].value, selects[map[1] + mapOffset].value, selects[map[0] + mapOffset].value, hours, minutes);
     },
     _fill_lightbox_select: function _fill_lightbox_select(s, i, d, map) {
       s[i + map[0]].value = d.getDate();
@@ -25171,7 +25172,7 @@ module.exports = function (gantt) {
     }
   };
 
-  messageBox.seed = new Date().valueOf();
+  messageBox.seed = new gantt.PersianDate().valueOf();
   messageBox.uid = utils.uid;
   messageBox.expire = 4000;
   messageBox.keyboard = true;
@@ -30598,7 +30599,7 @@ function ScaleHelper(gantt) {
     },
     sortScales: function sortScales(scales) {
       function cellSize(unit, step) {
-        var d = new Date(1970, 0, 1);
+        var d = new gantt.PersianDate(1970, 0, 1);
         return dateHelper.add(d, step, unit) - d;
       }
 
@@ -30813,12 +30814,12 @@ function ScaleHelper(gantt) {
         left: [],
         trace_x: [],
         trace_indexes: {},
-        min_date: new Date(min_date),
-        max_date: new Date(max_date)
+        min_date: new gantt.PersianDate(min_date),
+        max_date: new gantt.PersianDate(max_date)
       }, config);
       this.eachColumn(config.unit, config.step, min_date, max_date, function (date) {
         cfg.count++;
-        cfg.trace_x.push(new Date(date));
+        cfg.trace_x.push(new gantt.PersianDate(date));
         cfg.trace_indexes[date.valueOf()] = cfg.trace_x.length - 1;
       });
       cfg.trace_x_ascending = cfg.trace_x.slice();
@@ -30856,21 +30857,21 @@ function ScaleHelper(gantt) {
       });
     },
     eachColumn: function eachColumn(unit, step, min_date, max_date, callback) {
-      var start = new Date(min_date),
-          end = new Date(max_date);
+      var start = new gantt.PersianDate(min_date),
+          end = new gantt.PersianDate(max_date);
 
       if (dateHelper[unit + "_start"]) {
         start = dateHelper[unit + "_start"](start);
       }
 
-      var curr = new Date(start);
+      var curr = new gantt.PersianDate(start);
 
       if (+curr >= +end) {
         end = dateHelper.add(curr, step, unit);
       }
 
       while (+curr < +end) {
-        callback.call(this, new Date(curr));
+        callback.call(this, new gantt.PersianDate(curr));
         var tzOffset = curr.getTimezoneOffset();
         curr = dateHelper.add(curr, step, unit);
         curr = gantt._correct_dst_change(curr, tzOffset, step, unit);
@@ -30887,7 +30888,7 @@ function ScaleHelper(gantt) {
         var width = Math.floor(cfg.width[0] * ((dates[1] - cfg.min_date) / (dates[1] - dates[0])));
         diff += cfg.width[0] - width;
         cfg.width[0] = width;
-        dates[0] = new Date(cfg.min_date);
+        dates[0] = new gantt.PersianDate(cfg.min_date);
       }
 
       var last = dates.length - 1;
@@ -31033,13 +31034,13 @@ function createTaskDND(timeline, gantt) {
         task.start_date = gantt.dateFromPos(coords_x.start + shift);
 
         if (!task.start_date) {
-          task.start_date = new Date(gantt.getState().min_date);
+          task.start_date = new gantt.PersianDate(gantt.getState().min_date);
         }
       } else {
         task.end_date = gantt.dateFromPos(coords_x.end + shift);
 
         if (!task.end_date) {
-          task.end_date = new Date(gantt.getState().max_date);
+          task.end_date = new gantt.PersianDate(gantt.getState().max_date);
         }
       }
 
@@ -31079,8 +31080,8 @@ function createTaskDND(timeline, gantt) {
 
         var coords_x = this._drag_task_coords(task, drag);
 
-        var minX = gantt.posFromDate(new Date(gantt.getState().min_date));
-        var maxX = gantt.posFromDate(new Date(gantt.getState().max_date));
+        var minX = gantt.posFromDate(new gantt.PersianDate(gantt.getState().min_date));
+        var maxX = gantt.posFromDate(new gantt.PersianDate(gantt.getState().max_date));
 
         if (coords_x.end + shift > maxX) {
           var maxShift = maxX - coords_x.end;
@@ -31106,16 +31107,16 @@ function createTaskDND(timeline, gantt) {
           new_end = null; // GS-454: If we drag multiple tasks, rely on the dates instead of timeline coordinates
 
       if (multipleDragShift) {
-        new_start = new Date(+drag.obj.start_date + multipleDragShift), new_end = new Date(+drag.obj.end_date + multipleDragShift);
+        new_start = new gantt.PersianDate(+drag.obj.start_date + multipleDragShift), new_end = new gantt.PersianDate(+drag.obj.end_date + multipleDragShift);
       } else {
         new_start = gantt.dateFromPos(coords_x.start + shift), new_end = gantt.dateFromPos(coords_x.end + shift);
       }
 
       if (!new_start) {
-        task.start_date = new Date(gantt.getState().min_date);
+        task.start_date = new gantt.PersianDate(gantt.getState().min_date);
         task.end_date = gantt.dateFromPos(gantt.posFromDate(task.start_date) + (coords_x.end - coords_x.start));
       } else if (!new_end) {
-        task.end_date = new Date(gantt.getState().max_date);
+        task.end_date = new gantt.PersianDate(gantt.getState().max_date);
         task.start_date = gantt.dateFromPos(gantt.posFromDate(task.end_date) - (coords_x.end - coords_x.start));
       } else {
         task.start_date = new_start;
@@ -31144,7 +31145,7 @@ function createTaskDND(timeline, gantt) {
         var sX = this.drag.start_drag.start_x,
             sY = this.drag.start_drag.start_y;
 
-        if (Date.now() - this.drag.timestamp > 50 || this._is_number(sX) && this._is_number(sY) && this._mouse_position_change({
+        if (gantt.PersianDate.now() - this.drag.timestamp > 50 || this._is_number(sX) && this._is_number(sY) && this._mouse_position_change({
           x: sX,
           y: sY
         }, pos) > 20) {
@@ -31291,7 +31292,7 @@ function createTaskDND(timeline, gantt) {
           drag.start_y = pos.y;
           drag.obj = task;
           this.drag.start_drag = drag;
-          this.drag.timestamp = Date.now();
+          this.drag.timestamp = gantt.PersianDate.now();
         } else this.clear_drag_state();
       }
     },
@@ -31319,7 +31320,7 @@ function createTaskDND(timeline, gantt) {
       function fixEnd(task) {
         if (!gantt.config.correct_work_time) return;
         var config = timeline.$getConfig();
-        if (!gantt.isWorkTime(new Date(task.end_date - 1), undefined, task)) task.end_date = gantt.calculateEndDate({
+        if (!gantt.isWorkTime(new gantt.PersianDate(task.end_date - 1), undefined, task)) task.end_date = gantt.calculateEndDate({
           start_date: task.end_date,
           duration: 1,
           unit: config.duration_unit,
@@ -32068,7 +32069,7 @@ Timeline.prototype = {
 
     for (var i = startIndex; i < endIndex; i++) {
       if (!config.trace_x[i]) break;
-      date = new Date(config.trace_x[i]);
+      date = new gantt.PersianDate(config.trace_x[i]);
       var value = content.call(this, date),
           width = config.width[i],
           height = config.height,
@@ -32120,7 +32121,7 @@ Timeline.prototype = {
       unit = this._getColumnDuration(scale, scale.trace_x[ind]);
     }
 
-    var date = new Date(scale.trace_x[ind].valueOf() + Math.round(part * unit));
+    var date = new gantt.PersianDate(scale.trace_x[ind].valueOf() + Math.round(part * unit));
     return date;
   },
   posFromDate: function posFromDate(date) {
@@ -32192,7 +32193,7 @@ Timeline.prototype = {
     return visibleDateIndex;
   },
   columnIndexByDate: function columnIndexByDate(date) {
-    var pos = new Date(date).valueOf();
+    var pos = new gantt.PersianDate(date).valueOf();
     var days = this._tasks.trace_x_ascending,
         ignores = this._tasks.ignore_x;
     var state = this.$gantt.getState();
@@ -32656,7 +32657,7 @@ module.exports = function (gantt) {
       currentDndId = null; //dbl-tap handling
 
       if (actionStart && dblclicktime) {
-        var now = new Date();
+        var now = new gantt.PersianDate();
 
         if (now - dblclicktime < 500) {
           var mouseEvents = gantt.$services.getService("mouseEvents");
@@ -32664,7 +32665,7 @@ module.exports = function (gantt) {
           block_action(e);
         } else dblclicktime = now;
       } else {
-        dblclicktime = new Date();
+        dblclicktime = new gantt.PersianDate();
       }
     }]);
 
@@ -34579,7 +34580,7 @@ CalendarWorkTimeStrategy.prototype = {
   _checkIfWorkingUnit: function _checkIfWorkingUnit(date, unit) {
     // GS-596: If unit is larger than day or has a custom logic
     if (!this["_is_work_" + unit]) {
-      var from = this.$gantt.date["".concat(unit, "_start")](new Date(date));
+      var from = this.$gantt.date["".concat(unit, "_start")](new gantt.PersianDate(date));
       var to = this.$gantt.date.add(from, 1, unit);
       return this.hasDuration(from, to);
     }
@@ -34639,8 +34640,8 @@ CalendarWorkTimeStrategy.prototype = {
   },
   _getWorkUnitsBetweenGeneric: function _getWorkUnitsBetweenGeneric(from, to, unit, step) {
     var dateHelper = this.$gantt.date;
-    var start = new Date(from),
-        end = new Date(to);
+    var start = new gantt.PersianDate(from),
+        end = new gantt.PersianDate(to);
     step = step || 1;
     var units = 0;
     var next = null;
@@ -34649,14 +34650,14 @@ CalendarWorkTimeStrategy.prototype = {
     // durations must be rounded later
 
     var checkFirst = false;
-    stepStart = dateHelper[unit + "_start"](new Date(start));
+    stepStart = dateHelper[unit + "_start"](new gantt.PersianDate(start));
 
     if (stepStart.valueOf() != start.valueOf()) {
       checkFirst = true;
     }
 
     var checkLast = false;
-    stepEnd = dateHelper[unit + "_start"](new Date(to));
+    stepEnd = dateHelper[unit + "_start"](new gantt.PersianDate(to));
 
     if (stepEnd.valueOf() != to.valueOf()) {
       checkLast = true;
@@ -34670,7 +34671,7 @@ CalendarWorkTimeStrategy.prototype = {
 
       if (this._isWorkTime(start, unit)) {
         if (checkFirst || checkLast && isLastStep) {
-          stepStart = dateHelper[unit + "_start"](new Date(start));
+          stepStart = dateHelper[unit + "_start"](new gantt.PersianDate(start));
           stepEnd = dateHelper.add(stepStart, step, unit);
         }
 
@@ -34744,8 +34745,8 @@ CalendarWorkTimeStrategy.prototype = {
   },
   _getWorkUnitsForRange: function _getWorkUnitsForRange(from, to, unit, step) {
     var total = 0;
-    var start = new Date(from),
-        end = new Date(to);
+    var start = new gantt.PersianDate(from),
+        end = new gantt.PersianDate(to);
     var getUnitsPerDay;
 
     if (unit == "minute") {
@@ -34766,7 +34767,7 @@ CalendarWorkTimeStrategy.prototype = {
         start = this.$gantt.date.add(start, 1, "month");
         continue;
       } else if (end - start > 1000 * 60 * 60 * 24 * 16) {
-        var weekStart = this.$gantt.date.week_start(new Date(start));
+        var weekStart = this.$gantt.date.week_start(new gantt.PersianDate(start));
 
         if (start.valueOf() === weekStart.valueOf()) {
           var units = this._largeUnitsCache.getMinutesPerWeek(start);
@@ -34810,16 +34811,16 @@ CalendarWorkTimeStrategy.prototype = {
     return Math.floor(result);
   },
   _getMinutesBetween: function _getMinutesBetween(from, to, unit, step) {
-    var start = new Date(from),
-        end = new Date(to);
+    var start = new gantt.PersianDate(from),
+        end = new gantt.PersianDate(to);
     step = step || 1;
-    var firstDayStart = new Date(start);
-    var firstDayEnd = this.$gantt.date.add(this.$gantt.date.day_start(new Date(start)), 1, "day");
+    var firstDayStart = new gantt.PersianDate(start);
+    var firstDayEnd = this.$gantt.date.add(this.$gantt.date.day_start(new gantt.PersianDate(start)), 1, "day");
 
     if (end.valueOf() <= firstDayEnd.valueOf()) {
       return this._getMinutesBetweenSingleDay(from, to);
     } else {
-      var lastDayStart = this.$gantt.date.day_start(new Date(end));
+      var lastDayStart = this.$gantt.date.day_start(new gantt.PersianDate(end));
       var lastDayEnd = end;
 
       var startPart = this._getMinutesBetweenSingleDay(firstDayStart, firstDayEnd);
@@ -34835,16 +34836,16 @@ CalendarWorkTimeStrategy.prototype = {
   // optimized method for calculating work units duration of large time spans
   // implemented for hours and minutes units, bigger time units don't benefit from the optimization so much
   _getHoursBetween: function _getHoursBetween(from, to, unit, step) {
-    var start = new Date(from),
-        end = new Date(to);
+    var start = new gantt.PersianDate(from),
+        end = new gantt.PersianDate(to);
     step = step || 1;
-    var firstDayStart = new Date(start);
-    var firstDayEnd = this.$gantt.date.add(this.$gantt.date.day_start(new Date(start)), 1, "day");
+    var firstDayStart = new gantt.PersianDate(start);
+    var firstDayEnd = this.$gantt.date.add(this.$gantt.date.day_start(new gantt.PersianDate(start)), 1, "day");
 
     if (end.valueOf() <= firstDayEnd.valueOf()) {
       return Math.round(this._getMinutesBetweenSingleDay(from, to) / 60);
     } else {
-      var lastDayStart = this.$gantt.date.day_start(new Date(end));
+      var lastDayStart = this.$gantt.date.day_start(new gantt.PersianDate(end));
       var lastDayEnd = end;
       var startPart = this._getMinutesBetweenSingleDay(firstDayStart, firstDayEnd, unit, step) / 60;
       var endPart = this._getMinutesBetweenSingleDay(lastDayStart, lastDayEnd, unit, step) / 60;
@@ -34903,9 +34904,9 @@ CalendarWorkTimeStrategy.prototype = {
 
           settings.parsed.customWeeksBoundaries.push({
             from: rangeStart.valueOf(),
-            fromReadable: new Date(rangeStart),
+            fromReadable: new gantt.PersianDate(rangeStart),
             to: rangeEnd.valueOf(),
-            toReadable: new Date(rangeEnd),
+            toReadable: new gantt.PersianDate(rangeEnd),
             name: i
           });
           settings.parsed.haveCustomWeeks = true;
@@ -35259,8 +35260,8 @@ CalendarWorkTimeStrategy.prototype = {
       return false;
     }
 
-    var start = new Date(from),
-        end = new Date(to);
+    var start = new gantt.PersianDate(from),
+        end = new gantt.PersianDate(to);
     step = step || 1;
 
     while (start.valueOf() < end.valueOf()) {
@@ -35323,10 +35324,10 @@ CalendarWorkTimeStrategy.prototype = {
         }
       }
 
-      var dateValue = new Date(next.valueOf() + 1);
+      var dateValue = new gantt.PersianDate(next.valueOf() + 1);
 
       if (step > 0) {
-        dateValue = new Date(next.valueOf() - 1);
+        dateValue = new gantt.PersianDate(next.valueOf() - 1);
       }
 
       var workTimeCheck = this._isWorkTime(dateValue, unit);
@@ -35345,7 +35346,7 @@ CalendarWorkTimeStrategy.prototype = {
     };
   },
   _addHoursUntilDayEnd: function _addHoursUntilDayEnd(from, duration) {
-    var dayEnd = this.$gantt.date.add(this.$gantt.date.day_start(new Date(from)), 1, "day");
+    var dayEnd = this.$gantt.date.add(this.$gantt.date.day_start(new gantt.PersianDate(from)), 1, "day");
     var added = 0;
     var left = duration;
 
@@ -35376,7 +35377,7 @@ CalendarWorkTimeStrategy.prototype = {
     var intervalEnd = dayEnd;
 
     if (added === duration) {
-      intervalEnd = new Date(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, range.start);
+      intervalEnd = new gantt.PersianDate(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, range.start);
     }
 
     return {
@@ -35385,7 +35386,7 @@ CalendarWorkTimeStrategy.prototype = {
     };
   },
   _calculateHourEndDate: function _calculateHourEndDate(from, duration, step) {
-    var start = new Date(from),
+    var start = new gantt.PersianDate(from),
         added = 0;
     step = step || 1;
     duration = Math.abs(duration * 1);
@@ -35409,9 +35410,9 @@ CalendarWorkTimeStrategy.prototype = {
         var hoursPerDay = 0;
 
         if (step > 0) {
-          hoursPerDay = this.getHoursPerDay(new Date(next.valueOf() - 1));
+          hoursPerDay = this.getHoursPerDay(new gantt.PersianDate(next.valueOf() - 1));
         } else {
-          hoursPerDay = this.getHoursPerDay(new Date(next.valueOf() + 1));
+          hoursPerDay = this.getHoursPerDay(new gantt.PersianDate(next.valueOf() + 1));
         }
 
         if (added + hoursPerDay >= duration) {
@@ -35439,11 +35440,11 @@ CalendarWorkTimeStrategy.prototype = {
       // already at hour end
       return {
         added: 0,
-        end: new Date(from)
+        end: new gantt.PersianDate(from)
       };
     }
 
-    var hourEnd = this.$gantt.date.add(this.$gantt.date.hour_start(new Date(from)), 1, "hour");
+    var hourEnd = this.$gantt.date.add(this.$gantt.date.hour_start(new gantt.PersianDate(from)), 1, "hour");
     var added = 0;
     var left = duration;
 
@@ -35474,7 +35475,7 @@ CalendarWorkTimeStrategy.prototype = {
     var intervalEnd = hourEnd;
 
     if (added === duration) {
-      intervalEnd = new Date(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, range.start);
+      intervalEnd = new gantt.PersianDate(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, range.start);
     }
 
     return {
@@ -35483,7 +35484,7 @@ CalendarWorkTimeStrategy.prototype = {
     };
   },
   _subtractMinutesUntilHourStart: function _subtractMinutesUntilHourStart(from, duration) {
-    var hourStart = this.$gantt.date.hour_start(new Date(from));
+    var hourStart = this.$gantt.date.hour_start(new gantt.PersianDate(from));
     var added = 0;
     var left = duration;
     var hourStartTimestamp = hourStart.getHours() * 60 * 60 + hourStart.getMinutes() * 60 + hourStart.getSeconds();
@@ -35516,7 +35517,7 @@ CalendarWorkTimeStrategy.prototype = {
     var intervalEnd = hourStart;
 
     if (added === duration) {
-      intervalEnd = new Date(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, initialDateTimestamp);
+      intervalEnd = new gantt.PersianDate(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, initialDateTimestamp);
     }
 
     return {
@@ -35525,7 +35526,7 @@ CalendarWorkTimeStrategy.prototype = {
     };
   },
   _subtractMinuteDate: function _subtractMinuteDate(from, duration, step) {
-    var start = new Date(from),
+    var start = new gantt.PersianDate(from),
         added = 0;
     step = step || -1;
     duration = Math.abs(duration * 1);
@@ -35542,16 +35543,16 @@ CalendarWorkTimeStrategy.prototype = {
     var minutesInDay = 0;
 
     while (added < duration) {
-      var dayStart = this.$gantt.date.day_start(new Date(start));
+      var dayStart = this.$gantt.date.day_start(new gantt.PersianDate(start));
       var iterateFromDayEnd = false;
 
       if (start.valueOf() === dayStart.valueOf()) {
         dayStart = this.$gantt.date.add(dayStart, -1, "day");
         iterateFromDayEnd = true;
-      } //var dayStartTimestamp = this.$gantt.date.day_start(new Date(start)).valueOf();
+      } //var dayStartTimestamp = this.$gantt.date.day_start(new gantt.PersianDate(start)).valueOf();
 
 
-      var dayEnd = new Date(dayStart.getFullYear(), dayStart.getMonth(), dayStart.getDate(), 23, 59, 59, 999).valueOf();
+      var dayEnd = new gantt.PersianDate(dayStart.getFullYear(), dayStart.getMonth(), dayStart.getDate(), 23, 59, 59, 999).valueOf();
 
       if (dayEnd !== calculatedDay) {
         daySchedule = this._getWorkHours(dayStart);
@@ -35637,7 +35638,7 @@ CalendarWorkTimeStrategy.prototype = {
 
           start = prev;
         } else {
-          start = this._getClosestWorkTimePast(new Date(start - 1), "hour");
+          start = this._getClosestWorkTimePast(new gantt.PersianDate(start - 1), "hour");
         }
       }
     }
@@ -35652,7 +35653,7 @@ CalendarWorkTimeStrategy.prototype = {
     return start;
   },
   _calculateMinuteEndDate: function _calculateMinuteEndDate(from, duration, step) {
-    var start = new Date(from),
+    var start = new gantt.PersianDate(from),
         added = 0;
     step = step || 1;
     duration = Math.abs(duration * 1);
@@ -35669,7 +35670,7 @@ CalendarWorkTimeStrategy.prototype = {
     var minutePrecision = this._isMinutePrecision(start);
 
     while (added < duration) {
-      var dayStart = this.$gantt.date.day_start(new Date(start)).valueOf();
+      var dayStart = this.$gantt.date.day_start(new gantt.PersianDate(start)).valueOf();
 
       if (dayStart !== calculatedDay) {
         daySchedule = this._getWorkHours(start);
@@ -35691,7 +35692,7 @@ CalendarWorkTimeStrategy.prototype = {
           added += minutesInDay;
 
           if (left == minutesInDay) {
-            start = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, daySchedule[daySchedule.length - 1].end);
+            start = new gantt.PersianDate(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, daySchedule[daySchedule.length - 1].end);
             break;
           } else {
             start = this.$gantt.date.add(start, 1, "day");
@@ -35756,7 +35757,7 @@ CalendarWorkTimeStrategy.prototype = {
     return this._getClosestWorkTime(settings.date, settings.unit, settings.dir);
   },
   _getClosestWorkTime: function _getClosestWorkTime(inputDate, unit, direction) {
-    var result = new Date(inputDate);
+    var result = new gantt.PersianDate(inputDate);
 
     if (this._isWorkTime(result, unit)) {
       return result;
@@ -35792,7 +35793,7 @@ CalendarWorkTimeStrategy.prototype = {
     return this.$gantt.date.add(result, 1, unit);
   },
   _findClosestTimeInDay: function _findClosestTimeInDay(date, direction, worktimes) {
-    var start = new Date(date);
+    var start = new gantt.PersianDate(date);
     var resultDate = null;
     var fromDayEnd = false;
 
@@ -35800,7 +35801,7 @@ CalendarWorkTimeStrategy.prototype = {
       start = this._getClosestWorkTime(start, "day", direction < 0 ? "past" : "future");
 
       if (direction < 0) {
-        start = new Date(start.valueOf() - 1);
+        start = new gantt.PersianDate(start.valueOf() - 1);
         fromDayEnd = true;
       }
 
@@ -35810,23 +35811,23 @@ CalendarWorkTimeStrategy.prototype = {
     var value = this._getTimeOfDayStamp(start);
 
     if (fromDayEnd) {
-      value = this._getTimeOfDayStamp(new Date(start.valueOf() + 1), fromDayEnd);
+      value = this._getTimeOfDayStamp(new gantt.PersianDate(start.valueOf() + 1), fromDayEnd);
     }
 
     if (direction > 0) {
       for (var i = 0; i < worktimes.length; i++) {
         if (worktimes[i].start >= value) {
-          resultDate = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, worktimes[i].start);
+          resultDate = new gantt.PersianDate(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, worktimes[i].start);
           break;
         }
       }
     } else {
       for (var i = worktimes.length - 1; i >= 0; i--) {
         if (worktimes[i].end <= value) {
-          resultDate = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, worktimes[i].end);
+          resultDate = new gantt.PersianDate(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, worktimes[i].end);
           break;
         } else if (worktimes[i].end > value && worktimes[i].start <= value) {
-          resultDate = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, value);
+          resultDate = new gantt.PersianDate(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, value);
           break;
         }
       }
@@ -35835,7 +35836,7 @@ CalendarWorkTimeStrategy.prototype = {
     return resultDate;
   },
   _getClosestWorkMinute: function _getClosestWorkMinute(date, unit, direction) {
-    var start = new Date(date);
+    var start = new gantt.PersianDate(date);
 
     var worktimes = this._getWorkHours(start);
 
@@ -35849,7 +35850,7 @@ CalendarWorkTimeStrategy.prototype = {
       } else {
         start = this.$gantt.date.day_start(start);
         start = this.$gantt.date.add(start, 1, "day");
-        start = new Date(start.valueOf() - 1);
+        start = new gantt.PersianDate(start.valueOf() - 1);
       }
 
       worktimes = this._getWorkHours(start);
@@ -36027,8 +36028,8 @@ CalendarDisabledTimeStrategy.prototype = {
     if (fixedUnits[unit]) {
       res = Math.round((end - start) / (step * fixedUnits[unit]));
     } else {
-      var from = new Date(start),
-          to = new Date(end);
+      var from = new gantt.PersianDate(start),
+          to = new gantt.PersianDate(end);
 
       while (from.valueOf() < to.valueOf()) {
         res += 1;
@@ -36052,8 +36053,8 @@ CalendarDisabledTimeStrategy.prototype = {
       return false;
     }
 
-    from = new Date(from);
-    to = new Date(to);
+    from = new gantt.PersianDate(from);
+    to = new gantt.PersianDate(to);
     return from.valueOf() < to.valueOf();
   },
   hasWorkTime: function hasWorkTime() {
@@ -36317,7 +36318,7 @@ var DateDurationCache = /** @class */ (function () {
             endDate = result;
         }
         else {
-            endDate = new Date(cache.endDates[key]);
+            endDate = new gantt.PersianDate(cache.endDates[key]);
         }
         return endDate;
     };
@@ -36399,7 +36400,7 @@ var LargerUnitsCache = /** @class */ (function () {
             var calendar = _this._calendar;
             var gantt = _this._calendar.$gantt;
             var minutesPerWeek = 0;
-            var start = gantt.date.week_start(new Date(weekStart));
+            var start = gantt.date.week_start(new gantt.PersianDate(weekStart));
             for (var i = 0; i < 7; i++) {
                 minutesPerWeek += calendar.getHoursPerDay(start) * 60;
                 start = gantt.date.add(start, 1, "day");
@@ -36415,7 +36416,7 @@ var LargerUnitsCache = /** @class */ (function () {
             var calendar = _this._calendar;
             var gantt = _this._calendar.$gantt;
             var minutesPerMonth = 0;
-            var start = gantt.date.week_start(new Date(monthStart));
+            var start = gantt.date.week_start(new gantt.PersianDate(monthStart));
             var nextMonth = gantt.date.add(start, 1, "month").valueOf();
             while (start.valueOf() < nextMonth) {
                 minutesPerMonth += calendar.getHoursPerDay(start) * 60;
@@ -45107,7 +45108,7 @@ function copy(object) {
   if (object && _typeof(object) == "object") {
     switch (true) {
       case helpers.isDate(object):
-        result = new Date(object);
+        result = new gantt.PersianDate(object);
         break;
 
       case helpers.isArray(object):
@@ -45162,7 +45163,7 @@ function defined(obj) {
 var seed;
 
 function uid() {
-  if (!seed) seed = new Date().valueOf();
+  if (!seed) seed = new gantt.PersianDate().valueOf();
   seed++;
   return seed;
 } //creates function with specified "this" pointer
