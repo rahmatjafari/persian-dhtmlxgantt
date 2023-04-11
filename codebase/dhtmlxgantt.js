@@ -7502,8 +7502,15 @@ module.exports = function (gantt) {
       return this.date_part(this.add(date, -1 * shift, "day"));
     },
     month_start: function month_start(date) {
-      date.setDate(1);
-      return this.date_part(date);
+        if(gantt.config.jalali){
+            var jalaliDate = gantt.moment(date.getYear()+'/'+(parseInt(date.getMonth())+1)+'/01', 'jYYYY/jM/jD');
+            date.setDate(jalaliDate.date());
+            date.setMonth(jalaliDate.month());
+            date.setFullYear(jalaliDate.year());
+        }else{
+            date.setDate(1);
+        }
+        return this.date_part(date);
     },
     quarter_start: function quarter_start(date) {
       this.month_start(date);
@@ -7541,7 +7548,15 @@ module.exports = function (gantt) {
       return date;
     },
     _add_days: function _add_days(modifiedDate, inc, originalDate) {
-      modifiedDate.setDate(modifiedDate.getDate() + inc);
+      if(gantt.config.jalali){
+          var jalaliDate = gantt.moment(modifiedDate.getYear()+'/'+(parseInt(modifiedDate.getMonth())+1)+'/'+modifiedDate.getDate(), 'jYYYY/jM/jD');
+          jalaliDate.add(inc, 'day');
+          modifiedDate.setDate(jalaliDate.date());
+          modifiedDate.setMonth(jalaliDate.month());
+          modifiedDate.setFullYear(jalaliDate.year());
+      }else{
+          modifiedDate.setDate(modifiedDate.getDate() + inc);
+      }
       var incCondition = inc >= 0;
       var getHoursCondition = !originalDate.getHours() && modifiedDate.getHours(); //shift to yesterday on dst
 
@@ -7563,6 +7578,7 @@ module.exports = function (gantt) {
     add: function add(date, inc, mode) {
       /*jsl:ignore*/
       var ndate = new gantt.PersianDate(date.valueOf());
+      var jalaliDate = gantt.moment(ndate.getYear()+'/'+(parseInt(ndate.getMonth())+1)+'/'+ndate.getDate(), 'jYYYY/jM/jD');
 
       switch (mode) {
         case "day":
@@ -7574,11 +7590,25 @@ module.exports = function (gantt) {
           break;
 
         case "month":
-          ndate.setMonth(ndate.getMonth() + inc);
+          if(gantt.config.jalali){
+              jalaliDate.add(1, 'jMonth');
+              ndate.setDate(jalaliDate.date());
+              ndate.setMonth(jalaliDate.month());
+              ndate.setFullYear(jalaliDate.year());
+          }else{
+              ndate.setMonth(ndate.getMonth() + inc);
+          }
           break;
 
         case "year":
-          ndate.setYear(ndate.getFullYear() + inc);
+          if(gantt.config.jalali){
+              jalaliDate.add(1, 'jYear');
+              ndate.setDate(jalaliDate.date());
+              ndate.setMonth(jalaliDate.month());
+              ndate.setFullYear(jalaliDate.year());
+          }else{
+              ndate.setYear(ndate.getFullYear() + inc);
+          }
           break;
 
         case "hour":
@@ -34007,7 +34037,11 @@ var calendarArgumentsHelper = function calendarArgumentsHelper(gantt) {
       processedConfig.step = processedConfig.step || gantt.config.duration_step;
 
       if (!helpers.isValidDate(processedConfig.start_date)) {
-        gantt.assert(false, "Invalid start_date argument for calculateEndDate method");
+        if(gantt.config.jalali){
+            gantt.assert(false, "تاریخ انتخابی صحیح نمیباشد");
+        } else {
+            gantt.assert(false, "Invalid start_date argument for calculateEndDate method");
+        }
         throw new Error("Invalid start_date argument for calculateEndDate method");
       }
 
