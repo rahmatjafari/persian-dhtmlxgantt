@@ -23066,7 +23066,12 @@ module.exports = function (gantt) {
       minutes = time % 60;
     }
 
-    return new gantt.PersianDate(s[map[2]].value, s[map[1]].value, s[map[0]].value, hours, minutes);
+    if(gantt.config.jalali){
+        var jalaliDate = gantt.moment(s[map[2]].value+'/'+(parseInt(s[map[1]].value)+1)+'/'+s[map[0]].value, 'jYYYY/jM/jD');
+        return new gantt.PersianDate(jalaliDate.year(), jalaliDate.month(), jalaliDate.date(), hours, minutes);
+    }else{
+        return new gantt.PersianDate(s[map[2]].value, s[map[1]].value, s[map[0]].value, hours, minutes);
+    }
   }
 
   function _getDuration(node, config) {
