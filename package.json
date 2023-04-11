@@ -1,6 +1,6 @@
 {
   "name": "@yahmat/dhtmlxgantt",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "This Gantt chart is based on dhtmlxGantt to show persian(jalali) date.",
   "main": "codebase/dhtmlxgantt.js",
   "types": "codebase/dhtmlxgantt.d.ts",
